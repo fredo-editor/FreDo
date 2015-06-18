@@ -55,3 +55,7 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# GUI Files
+fredo/gui/*.py
+!fredo/gui/__init__.py
