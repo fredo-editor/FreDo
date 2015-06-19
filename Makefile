@@ -6,4 +6,4 @@ gui:
 	make -C fredo/gui all
 
 run: gui
-	python3 -m fredo.editor.main
+	python -m fredo.editor.main

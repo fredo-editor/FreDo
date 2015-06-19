@@ -1,4 +1,4 @@
-UIC = pyuic5
+UIC = pyuic4
 WIDGETS = main_window.py
 
 %.py: %.ui
