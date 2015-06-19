@@ -42,3 +42,20 @@ def numpy_to_qimage(array):
 
     img = QImage(string, cols, rows, QImage.Format_ARGB32)
     return img
+
+
+def rgb_to_gray(arr):
+    """ Converts an RGB numpy array to grayscale. """
+
+    r = arr[:, :, 0].astype(np.float)
+    g = arr[:, :, 1].astype(np.float)
+    b = arr[:, :, 2].astype(np.float)
+
+    garr = 0.299*r + 0.587*g + 0.114*b
+    return garr.astype(np.uint8)
+
+
+def gray_to_rgb(arr):
+    """ Converts intensity array to RGB. """
+
+    return np.dstack([arr, arr, arr])
