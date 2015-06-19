@@ -1,4 +1,3 @@
-GUIC = pyuic5
 ALL_PY_FILES=$(shell find -name *.py)
 
 all:gui
