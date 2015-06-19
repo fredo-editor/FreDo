@@ -34,8 +34,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>383</width>
-               <height>549</height>
+               <width>663</width>
+               <height>514</height>
               </rect>
              </property>
              <layout class="QGridLayout" name="gridLayout_2">
@@ -49,6 +49,50 @@
              </layout>
             </widget>
            </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="image_zoom_in_btn">
+              <property name="text">
+               <string>Zoom In</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="image_zoom_out_btn">
+              <property name="text">
+               <string>Zoom Out</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
