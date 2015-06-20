@@ -59,3 +59,17 @@ def gray_to_rgb(arr):
     """ Converts intensity array to RGB. """
 
     return np.dstack([arr, arr, arr])
+
+
+def fft_to_qimage(arr):
+    "Converts frquency spectrum image to displayable qimage"
+
+    arr = np.fft.fftshift(arr)
+    magnitude = np.absolute(arr)**2
+    magnitutde_log = np.log(magnitude)
+    mn = magnitutde_log.min()
+    mx = magnitutde_log.max()
+    norm_img = 255*(magnitutde_log - mn)/(mx - mn)
+    norm_img = norm_img.astype(np.uint8)
+    rgb_image = gray_to_rgb(norm_img)
+    return numpy_to_qimage(rgb_image)
