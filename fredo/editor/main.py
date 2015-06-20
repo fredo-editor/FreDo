@@ -1,6 +1,7 @@
 from ..gui.main_window import Ui_EditorMainWindow
 from PyQt4.QtGui import QApplication, QMainWindow, QPixmap
-from PyQt4 import QtGui
+from PyQt4 import QtGui, QtCore
+from PyQt4.QtCore import QObject
 import sys
 import numpy as np
 from .. import util
@@ -19,8 +20,14 @@ class EditorMainWindow(QMainWindow):
         self.ui.image_zoom_out_btn.clicked.connect(self.image_zoom_out)
         self.ui.freq_zoom_in_btn.clicked.connect(self.freq_zoom_in)
         self.ui.freq_zoom_out_btn.clicked.connect(self.freq_zoom_out)
+        self.ui.image_label.installEventFilter(self)
+        self.ui.freq_label.installEventFilter(self)
+
+        self.ui.image_label.setMouseTracking(True)
+        self.ui.freq_label.setMouseTracking(True)
 
         self.spatial_array = None
+        # This will store the shifted frequency image
         self.frequency_array = None
         self.spatial_scale = 1.0
         self.frequency_scale = 1.0
@@ -40,6 +47,7 @@ class EditorMainWindow(QMainWindow):
             array = util.qimage_to_numpy(image)
             garray = util.rgb_to_gray(array)
             farray = np.fft.fft2(garray)
+            farray = np.fft.fftshift(farray)
             self.set_gray_image(garray)
             self.set_freq_image(farray)
 
@@ -102,10 +110,61 @@ class EditorMainWindow(QMainWindow):
         self.frequency_scale += 0.1
         self.set_freq_image(self.frequency_array)
 
+    def handle_image_move(self, event):
+        "Handle mouse move on the spatial image."
+
+        if self.spatial_array is None:
+            return
+
+        pos = event.pos()
+        x, y = pos.x(), pos.y()
+        x, y = int(x/self.spatial_scale), int(y/self.spatial_scale)
+        r, c = y, x
+
+        r = np.clip(r, 0, self.spatial_array.shape[0])
+        c = np.clip(c, 0, self.spatial_array.shape[1])
+        value = self.spatial_array[r, c]
+
+        msg = "X:%d Y:%d Value:%d" % (x, y, value)
+        self.ui.image_info_label.setText(msg)
+
+    def handle_freq_move(self, event):
+        "Handle mouse move on the frequency domain image."
+
+        if self.frequency_array is None:
+            return
+
+        pos = event.pos()
+        x, y = pos.x(), pos.y()
+        x, y = int(x/self.frequency_scale), int(y/self.frequency_scale)
+        r, c = y, x
+
+        r = np.clip(r, 0, self.frequency_array.shape[0])
+        c = np.clip(c, 0, self.frequency_array.shape[1])
+        value = self.frequency_array[r, c]
+        value = np.absolute(value)**2
+
+        msg = "X:%d Y:%d Value:%d" % (x, y, value)
+        self.ui.freq_info_label.setText(msg)
+
+    def eventFilter(self, obj, event):
+
+        if obj == self.ui.image_label:
+            if event.type() == QtCore.QEvent.MouseMove:
+                self.handle_image_move(event)
+                return True
+
+        elif obj == self.ui.freq_label:
+            if event.type() == QtCore.QEvent.MouseMove:
+                self.handle_freq_move(event)
+                return True
+
+        return QObject.eventFilter(self, obj, event)
+
 
 if __name__ == '__main__':
 
     app = QApplication(sys.argv)
-    calculator = EditorMainWindow()
-    calculator.show()
+    editor = EditorMainWindow()
+    editor.show()
     sys.exit(app.exec_())
