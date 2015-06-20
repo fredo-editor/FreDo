@@ -47,6 +47,9 @@
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
+                <property name="cursor">
+                 <cursorShape>CrossCursor</cursorShape>
+                </property>
                 <property name="text">
                  <string/>
                 </property>
@@ -127,6 +130,9 @@
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
+                <property name="cursor">
+                 <cursorShape>CrossCursor</cursorShape>
+                </property>
                 <property name="text">
                  <string/>
                 </property>
@@ -203,11 +209,23 @@
     </property>
     <addaction name="action_open"/>
    </widget>
+   <widget class="QMenu" name="menuBrushes">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="action_brush"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuBrushes"/>
   </widget>
   <action name="action_open">
    <property name="text">
     <string>Open</string>
+   </property>
+  </action>
+  <action name="action_brush">
+   <property name="text">
+    <string>Brush</string>
    </property>
   </action>
  </widget>

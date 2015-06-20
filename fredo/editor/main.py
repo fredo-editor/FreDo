@@ -5,6 +5,7 @@ from PyQt4.QtCore import QObject
 import sys
 import numpy as np
 from .. import util
+from .brush_dialog import BrushDialog
 
 
 class EditorMainWindow(QMainWindow):
@@ -16,6 +17,7 @@ class EditorMainWindow(QMainWindow):
         self.ui.setupUi(self)
 
         self.ui.action_open.triggered.connect(self.open_file)
+        self.ui.action_brush.triggered.connect(self.show_brush)
         self.ui.image_zoom_in_btn.clicked.connect(self.image_zoom_in)
         self.ui.image_zoom_out_btn.clicked.connect(self.image_zoom_out)
         self.ui.freq_zoom_in_btn.clicked.connect(self.freq_zoom_in)
@@ -161,6 +163,10 @@ class EditorMainWindow(QMainWindow):
 
         return QObject.eventFilter(self, obj, event)
 
+    def show_brush(self):
+        print("Square Brush")
+        d = BrushDialog(self)
+        d.exec_()
 
 if __name__ == '__main__':
 
