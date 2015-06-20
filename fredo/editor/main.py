@@ -30,7 +30,8 @@ class EditorMainWindow(QMainWindow):
 
         self.spatial_array = None
         # This will store the shifted frequency image
-        self.frequency_array = None
+        self.frequency_array_magnitude = None
+        self.frequency_array_agnle = None
         self.spatial_scale = 1.0
         self.frequency_scale = 1.0
 
@@ -50,19 +51,26 @@ class EditorMainWindow(QMainWindow):
             garray = util.rgb_to_gray(array)
             farray = np.fft.fft2(garray)
             farray = np.fft.fftshift(farray)
+
             self.set_gray_image(garray)
-            self.set_freq_image(farray)
+            self.set_freq_image_angle(np.angle(farray))
+            self.set_freq_image_magnitude(np.absolute(farray))
 
-    def set_freq_image(self, fimg):
-        " Sets a complex numpy array as a frequncy domain image. "
+    def set_freq_image_magnitude(self, fimg):
+        " Sets a numpy array as a frequncy domain image magnitude. "
 
-        self.frequency_array = fimg
-        qimage = util.fft_to_qimage(fimg)
+        self.frequency_array_magnitude = fimg
+        qimage = util.fft_to_qimage(self.frequency_array_magnitude)
         w, h = qimage.width(), qimage.height()
         sw, sh = int(w*self.frequency_scale), int(h*self.frequency_scale)
         pixmap = QPixmap.fromImage(qimage)
         scaled_pixmap = pixmap.scaled(sw, sh)
         self.ui.freq_label.setPixmap(scaled_pixmap)
+
+    def set_freq_image_angle(self, fimg):
+        " Sets a numpy array as a frequncy domain image magnitude. "
+
+        self.frequency_array_angle = fimg
 
     def set_gray_image(self, gimg):
         """ Sets a 2D grayscale array as the spatial domain image."""
@@ -97,20 +105,20 @@ class EditorMainWindow(QMainWindow):
     def freq_zoom_out(self):
         "Zoom out the frequency domain image."
 
-        if self.frequency_array is None:
+        if self.frequency_array_magnitude is None:
             return
 
         self.frequency_scale -= 0.1
-        self.set_freq_image(self.frequency_array)
+        self.set_freq_image_magnitude(self.frequency_array_magnitude)
 
     def freq_zoom_in(self):
         "Zoom out the frequency domain image."
 
-        if self.frequency_array is None:
+        if self.frequency_array_magnitude is None:
             return
 
         self.frequency_scale += 0.1
-        self.set_freq_image(self.frequency_array)
+        self.set_freq_image_magnitude(self.frequency_array_magnitude)
 
     def handle_image_move(self, event):
         "Handle mouse move on the spatial image."
@@ -133,7 +141,7 @@ class EditorMainWindow(QMainWindow):
     def handle_freq_move(self, event):
         "Handle mouse move on the frequency domain image."
 
-        if self.frequency_array is None:
+        if self.frequency_array_magnitude is None:
             return
 
         pos = event.pos()
@@ -141,10 +149,9 @@ class EditorMainWindow(QMainWindow):
         x, y = int(x/self.frequency_scale), int(y/self.frequency_scale)
         r, c = y, x
 
-        r = np.clip(r, 0, self.frequency_array.shape[0])
-        c = np.clip(c, 0, self.frequency_array.shape[1])
-        value = self.frequency_array[r, c]
-        value = np.absolute(value)**2
+        r = np.clip(r, 0, self.frequency_array_magnitude.shape[0])
+        c = np.clip(c, 0, self.frequency_array_magnitude.shape[1])
+        value = self.frequency_array_magnitude[r, c]
 
         msg = "X:%d Y:%d Value:%d" % (x, y, value)
         self.ui.freq_info_label.setText(msg)

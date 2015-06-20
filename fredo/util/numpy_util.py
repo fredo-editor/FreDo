@@ -62,10 +62,9 @@ def gray_to_rgb(arr):
 
 
 def fft_to_qimage(arr):
-    "Converts frquency spectrum image to displayable qimage"
+    "Converts frquency spectrum magnitude image to displayable qimage"
 
-    magnitude = np.absolute(arr)**2
-    magnitutde_log = np.log(magnitude)
+    magnitutde_log = np.log(arr)
     mn = magnitutde_log.min()
     mx = magnitutde_log.max()
     norm_img = 255*(magnitutde_log - mn)/(mx - mn)

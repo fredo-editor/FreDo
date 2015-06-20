@@ -59,7 +59,11 @@
       </widget>
      </item>
      <item>
-      <widget class="QSpinBox" name="spinBox"/>
+      <widget class="QSpinBox" name="spinBox">
+       <property name="maximum">
+        <number>10000000</number>
+       </property>
+      </widget>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -106,6 +110,13 @@
         </spacer>
        </item>
       </layout>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton">
+       <property name="text">
+        <string>Done</string>
+       </property>
+      </widget>
      </item>
      <item>
       <spacer name="verticalSpacer">
