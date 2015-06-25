@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>234</width>
-    <height>367</height>
+    <width>278</width>
+    <height>419</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
-      <widget class="QComboBox" name="comboBox">
+      <widget class="QComboBox" name="brush_combo_box">
        <item>
         <property name="text">
          <string>Square</string>
@@ -39,7 +39,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QSlider" name="horizontalSlider">
+      <widget class="QSlider" name="size_slider">
        <property name="minimum">
         <number>1</number>
        </property>
@@ -81,18 +81,18 @@
         </spacer>
        </item>
        <item>
-        <widget class="QGraphicsView" name="graphicsView">
+        <widget class="QLabel" name="brush_demo_label">
          <property name="minimumSize">
           <size>
-           <width>200</width>
-           <height>200</height>
+           <width>100</width>
+           <height>100</height>
           </size>
          </property>
-         <property name="maximumSize">
-          <size>
-           <width>200</width>
-           <height>200</height>
-          </size>
+         <property name="autoFillBackground">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string/>
          </property>
         </widget>
        </item>
@@ -112,7 +112,7 @@
       </layout>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="brush_done_btn">
        <property name="text">
         <string>Done</string>
        </property>

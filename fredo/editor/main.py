@@ -35,6 +35,8 @@ class EditorMainWindow(QMainWindow):
         self.spatial_scale = 1.0
         self.frequency_scale = 1.0
 
+        self.current_brush = None
+
     def open_file(self):
         """ Signal handler for the Open Menu """
 
@@ -171,9 +173,12 @@ class EditorMainWindow(QMainWindow):
         return QObject.eventFilter(self, obj, event)
 
     def show_brush(self):
-        print("Square Brush")
         d = BrushDialog(self)
         d.exec_()
+        if d.get_brush():
+            self.current_brush = d.get_brush()
+
+        print("Brush = ", self.current_brush)
 
 if __name__ == '__main__':
 
