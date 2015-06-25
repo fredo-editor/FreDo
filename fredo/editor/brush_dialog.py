@@ -30,7 +30,7 @@ class BrushDialog(QDialog):
         pixmap.fill(Qt.white)
         cx, cy = int(size.width()/2), int(size.height()/2)
         self.current_brush.set_size(value)
-        self.current_brush.draw_marker(cx, cy, pixmap)
+        self.current_brush.draw_marker(cx, cy, pixmap, 1)
         self.ui.brush_demo_label.setPixmap(pixmap)
 
     def brush_changed(self, index):

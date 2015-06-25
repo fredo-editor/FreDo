@@ -32,6 +32,12 @@ class EditorMainWindow(QMainWindow):
         # This will store the shifted frequency image
         self.frequency_array_magnitude = None
         self.frequency_array_agnle = None
+
+        self.freq_pixmap = None
+        self.scaled_freq_pixmap = None
+        self.image_pixmap = None
+        self.scaled_image_pixmap = None
+
         self.spatial_scale = 1.0
         self.frequency_scale = 1.0
 
@@ -63,11 +69,37 @@ class EditorMainWindow(QMainWindow):
 
         self.frequency_array_magnitude = fimg
         qimage = util.fft_to_qimage(self.frequency_array_magnitude)
-        w, h = qimage.width(), qimage.height()
-        sw, sh = int(w*self.frequency_scale), int(h*self.frequency_scale)
+
         pixmap = QPixmap.fromImage(qimage)
-        scaled_pixmap = pixmap.scaled(sw, sh)
-        self.ui.freq_label.setPixmap(scaled_pixmap)
+        self.set_freq_pixmap(pixmap)
+        self.invalidate_freq_scale()
+        self.render_freq()
+
+    def set_freq_pixmap(self, pixmap):
+        "Sets the pixmap to be shown for frequency image"
+
+        self.freq_pixmap = pixmap
+
+    def invalidate_freq_scale(self):
+        "Implies scale has changed and recomputes internal fields"
+
+        w, h = self.freq_pixmap.width(), self.freq_pixmap.height()
+        sw, sh = int(w*self.frequency_scale), int(h*self.frequency_scale)
+        self.scaled_freq_pixmap = self.freq_pixmap.scaled(sw, sh)
+
+    def render_freq(self, pixmap=None):
+        """Render the pixmap as spatial image. If not given, display last known
+        sclaed spatial image pixmap.
+
+        Will mostly be called without 2nd argument. When a brush is set, we use
+        the scaled frequency pixmap, draw the brush and supply it as `pixmap`
+        to be shown.
+        """
+
+        if not pixmap:
+            pixmap = self.scaled_freq_pixmap
+
+        self.ui.freq_label.setPixmap(pixmap)
 
     def set_freq_image_angle(self, fimg):
         " Sets a numpy array as a frequncy domain image magnitude. "
@@ -80,11 +112,32 @@ class EditorMainWindow(QMainWindow):
         self.spatial_array = gimg
         img = util.gray_to_rgb(gimg)
         qimage = util.numpy_to_qimage(img)
-        w, h = qimage.width(), qimage.height()
-        sw, sh = int(w*self.spatial_scale), int(h*self.spatial_scale)
         pixmap = QPixmap.fromImage(qimage)
-        scaled_pixmap = pixmap.scaled(sw, sh)
-        self.ui.image_label.setPixmap(scaled_pixmap)
+        self.set_image_pixmap(pixmap)
+        self.invalidate_image_scale()
+        self.render_image()
+
+    def set_image_pixmap(self, pixmap):
+        "Sets the pixmap to be shown for spatial image"
+
+        self.image_pixmap = pixmap
+
+    def invalidate_image_scale(self):
+        "Implies scale has changed and recomputes internal fields"
+
+        w, h = self.image_pixmap.width(), self.image_pixmap.height()
+        sw, sh = int(w*self.spatial_scale), int(h*self.spatial_scale)
+        self.scaled_image_pixmap = self.image_pixmap.scaled(sw, sh)
+
+    def render_image(self, pixmap=None):
+        """Render the pixmap as spatial image. If not given, display last known
+        sclaed spatial image pixmap
+        """
+
+        if not pixmap:
+            pixmap = self.scaled_image_pixmap
+
+        self.ui.image_label.setPixmap(pixmap)
 
     def image_zoom_in(self):
         " Zoom in the spatial domain image "
@@ -93,7 +146,8 @@ class EditorMainWindow(QMainWindow):
             return
 
         self.spatial_scale += 0.1
-        self.set_gray_image(self.spatial_array)
+        self.invalidate_image_scale()
+        self.render_image()
 
     def image_zoom_out(self):
         " Zoom out the spatial domain image "
@@ -102,7 +156,8 @@ class EditorMainWindow(QMainWindow):
             return
 
         self.spatial_scale -= 0.1
-        self.set_gray_image(self.spatial_array)
+        self.invalidate_image_scale()
+        self.render_image()
 
     def freq_zoom_out(self):
         "Zoom out the frequency domain image."
@@ -111,7 +166,8 @@ class EditorMainWindow(QMainWindow):
             return
 
         self.frequency_scale -= 0.1
-        self.set_freq_image_magnitude(self.frequency_array_magnitude)
+        self.invalidate_freq_scale()
+        self.render_freq()
 
     def freq_zoom_in(self):
         "Zoom out the frequency domain image."
@@ -120,7 +176,8 @@ class EditorMainWindow(QMainWindow):
             return
 
         self.frequency_scale += 0.1
-        self.set_freq_image_magnitude(self.frequency_array_magnitude)
+        self.invalidate_freq_scale()
+        self.render_freq()
 
     def handle_image_move(self, event):
         "Handle mouse move on the spatial image."
@@ -128,6 +185,14 @@ class EditorMainWindow(QMainWindow):
         if self.spatial_array is None:
             return
 
+        self.handle_image_stats(event)
+
+    def handle_image_stats(self, event):
+        """Given an event, take care of displaying stats for spatial image.
+
+        The assumption made here is that the QLabel is exactly the size of the
+        image.
+        """
         pos = event.pos()
         x, y = pos.x(), pos.y()
         x, y = int(x/self.spatial_scale), int(y/self.spatial_scale)
@@ -141,11 +206,25 @@ class EditorMainWindow(QMainWindow):
         self.ui.image_info_label.setText(msg)
 
     def handle_freq_move(self, event):
-        "Handle mouse move on the frequency domain image."
+        """Handle mouse move on the frequency domain image.
+
+        The assumption made here is that the QLabel is exactly the size of the
+        image.
+        """
 
         if self.frequency_array_magnitude is None:
             return
 
+        self.handle_freq_stats(event)
+
+        if self.current_brush:
+            pixmap = self.scaled_freq_pixmap.copy()
+            self.current_brush.draw_marker(event.x(), event.y(), pixmap,
+                                           self.frequency_scale)
+            self.render_freq(pixmap)
+
+    def handle_freq_stats(self, event):
+        "Given an event, show frequency image stats"
         pos = event.pos()
         x, y = pos.x(), pos.y()
         x, y = int(x/self.frequency_scale), int(y/self.frequency_scale)
@@ -178,7 +257,6 @@ class EditorMainWindow(QMainWindow):
         if d.get_brush():
             self.current_brush = d.get_brush()
 
-        print("Brush = ", self.current_brush)
 
 if __name__ == '__main__':
 

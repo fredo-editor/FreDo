@@ -8,17 +8,14 @@ class SquareBrush(BaseBrush):
     def __init__(self, size=1):
         self.size = size
 
-    def draw_marker(self, x, y, pixmap):
+    def draw_marker(self, x, y, pixmap, scale):
         "Draw the brush marker indicating what area will be painted"
 
-        size = pixmap.size()
-        w, h = size.width(), size.height()
-        cx, cy = int(w/2), int(h/2)
+        w, h = self.size*scale, self.size*scale
         painter = QPainter(pixmap)
 
         painter.setPen(Qt.red)
-        painter.drawRect(cx - self.size/2, cy - self.size/2,
-                         self.size, self.size)
+        painter.drawRect(x - w/2, y - h/2, w, h)
 
     def apply(self, x, y, array):
         "Modify the array for the brush to take effect"
