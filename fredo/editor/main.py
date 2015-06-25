@@ -1,7 +1,7 @@
 from ..gui.main_window import Ui_EditorMainWindow
-from PyQt4.QtGui import QApplication, QMainWindow, QPixmap
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import QObject
+from PySide.QtGui import QApplication, QMainWindow, QPixmap
+from PySide import QtGui, QtCore
+from PySide.QtCore import QObject
 import sys
 import numpy as np
 from .. import util
@@ -38,7 +38,7 @@ class EditorMainWindow(QMainWindow):
     def open_file(self):
         """ Signal handler for the Open Menu """
 
-        file_name = QtGui.QFileDialog.getOpenFileName(self, "Open File")
+        file_name = QtGui.QFileDialog.getOpenFileName(self, "Open File")[0]
         if file_name:
             image = QtGui.QImage(file_name)
 

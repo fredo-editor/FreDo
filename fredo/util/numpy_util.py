@@ -1,4 +1,4 @@
-from PyQt4.QtGui import QImage
+from PySide.QtGui import QImage
 import numpy as np
 
 
@@ -10,7 +10,7 @@ def qimage_to_numpy(qimage):
     # a 32 bit format ensures that we can get away with dealing with padding
     qimage = qimage.convertToFormat(QImage.Format_ARGB32)
     w, h = qimage.width(), qimage.height()
-    string = qimage.bits().asstring(qimage.numBytes())
+    string = qimage.bits()
 
     arr = np.fromstring(string, dtype=np.uint8)
     arr = arr.reshape(h, w, 4)

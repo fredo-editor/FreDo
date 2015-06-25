@@ -1,4 +1,4 @@
-UIC = pyuic4
+UIC = pyside-uic
 WIDGETS = main_window.py brush_dialog.py
 
 %.py: %.ui
