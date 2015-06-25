@@ -62,7 +62,11 @@ def gray_to_rgb(arr):
 
 
 def fft_to_qimage(arr):
-    "Converts frquency spectrum magnitude image to displayable qimage"
+    """Converts frquency spectrum magnitude image to displayable qimage.
+
+    To make the image visually conceivable, we take the log of the array.
+    Otherwise, there is just too much difference between the maxima and minima.
+    """
 
     magnitutde_log = np.log(arr)
     mn = magnitutde_log.min()

@@ -65,7 +65,13 @@ class EditorMainWindow(QMainWindow):
             self.set_freq_image_magnitude(np.absolute(farray))
 
     def set_freq_image_magnitude(self, fimg):
-        " Sets a numpy array as a frequncy domain image magnitude. "
+        """ Sets a numpy array as a frequncy domain image magnitude.
+
+        This function expects an appropriately shifted numpy array as input.
+        Except taking log, no manipulation to the values is done before
+        rendering. The function updates recomputes all internal intermediate
+        values and re renders the frequency UI.
+        """
 
         self.frequency_array_magnitude = fimg
         qimage = util.fft_to_qimage(self.frequency_array_magnitude)
@@ -76,24 +82,35 @@ class EditorMainWindow(QMainWindow):
         self.render_freq()
 
     def set_freq_pixmap(self, pixmap):
-        "Sets the pixmap to be shown for frequency image"
+        """Sets the pixmap to be shown for frequency image.
+
+        This function only caches the pixmap, not computation or UI updation
+        is done.
+        """
 
         self.freq_pixmap = pixmap
 
     def invalidate_freq_scale(self):
-        "Implies scale has changed and recomputes internal fields"
+        """Implies scale has changed and recomputes internal fields
+
+        This function is to be called when either `self.freq_pixmap` changes
+        or `self.frequency_scale` changes. This function merely caches the
+        scaled pixmap, no UI updation is done.
+        """
 
         w, h = self.freq_pixmap.width(), self.freq_pixmap.height()
         sw, sh = int(w*self.frequency_scale), int(h*self.frequency_scale)
         self.scaled_freq_pixmap = self.freq_pixmap.scaled(sw, sh)
 
     def render_freq(self, pixmap=None):
-        """Render the pixmap as spatial image. If not given, display last known
-        sclaed spatial image pixmap.
+        """Render `pixmap` as the frequency image. If not given display last
+        known sclaed spatial image pixmap.
 
-        Will mostly be called without 2nd argument. When a brush is set, we use
-        the scaled frequency pixmap, draw the brush and supply it as `pixmap`
-        to be shown.
+        This function does not perform any computations internally. The
+        function is to be called to update the UI to reflect the state of the
+        internal fields, when called without the 2nd argument. When a brush
+        is set, a pixmap with the brush drawn on it can supplied as the 2nd
+        argument.
         """
 
         if not pixmap:
@@ -102,12 +119,16 @@ class EditorMainWindow(QMainWindow):
         self.ui.freq_label.setPixmap(pixmap)
 
     def set_freq_image_angle(self, fimg):
-        " Sets a numpy array as a frequncy domain image magnitude. "
+        " Sets a numpy array as a frequncy domain image angle. "
 
         self.frequency_array_angle = fimg
 
     def set_gray_image(self, gimg):
-        """ Sets a 2D grayscale array as the spatial domain image."""
+        """ Sets a 2D grayscale array as the spatial domain image.
+
+        The function expects a `uint8` grayscale array and will set it as the
+        spatial domain image in the UI along with updating all internal fields.
+        """
 
         self.spatial_array = gimg
         img = util.gray_to_rgb(gimg)
@@ -118,12 +139,21 @@ class EditorMainWindow(QMainWindow):
         self.render_image()
 
     def set_image_pixmap(self, pixmap):
-        "Sets the pixmap to be shown for spatial image"
+        """Sets the pixmap to be shown for spatial image.
+
+        This function only caches the pixmap, not computation or UI updation
+        is done.
+        """
 
         self.image_pixmap = pixmap
 
     def invalidate_image_scale(self):
-        "Implies scale has changed and recomputes internal fields"
+        """Implies scale has changed and recomputes internal fields.
+
+        This function is to be called when either `self.image_pixmap` changes
+        or `self.spatial_scale` changes. This function merely caches the
+        scaled pixmap, no UI updation is done.
+        """
 
         w, h = self.image_pixmap.width(), self.image_pixmap.height()
         sw, sh = int(w*self.spatial_scale), int(h*self.spatial_scale)
@@ -131,7 +161,7 @@ class EditorMainWindow(QMainWindow):
 
     def render_image(self, pixmap=None):
         """Render the pixmap as spatial image. If not given, display last known
-        sclaed spatial image pixmap
+        sclaed spatial image pixmap.
         """
 
         if not pixmap:
@@ -208,8 +238,6 @@ class EditorMainWindow(QMainWindow):
     def handle_freq_move(self, event):
         """Handle mouse move on the frequency domain image.
 
-        The assumption made here is that the QLabel is exactly the size of the
-        image.
         """
 
         if self.frequency_array_magnitude is None:
@@ -221,10 +249,16 @@ class EditorMainWindow(QMainWindow):
             pixmap = self.scaled_freq_pixmap.copy()
             self.current_brush.draw_marker(event.x(), event.y(), pixmap,
                                            self.frequency_scale)
+            # We use the pre computed scaled pixmap and mark the brush on it
+            # before displaying
             self.render_freq(pixmap)
 
     def handle_freq_stats(self, event):
-        "Given an event, show frequency image stats"
+        """Given an event, show frequency image stats.
+
+        The assumption made here is that the QLabel is exactly the size of the
+        image.
+        """
         pos = event.pos()
         x, y = pos.x(), pos.y()
         x, y = int(x/self.frequency_scale), int(y/self.frequency_scale)
@@ -238,6 +272,7 @@ class EditorMainWindow(QMainWindow):
         self.ui.freq_info_label.setText(msg)
 
     def eventFilter(self, obj, event):
+        "Call to handle relevant events."
 
         if obj == self.ui.image_label:
             if event.type() == QtCore.QEvent.MouseMove:
