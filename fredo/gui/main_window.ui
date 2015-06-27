@@ -214,6 +214,7 @@
      <string>Edit</string>
     </property>
     <addaction name="action_brush"/>
+    <addaction name="action_none"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuBrushes"/>
@@ -226,6 +227,11 @@
   <action name="action_brush">
    <property name="text">
     <string>Brush</string>
+   </property>
+  </action>
+  <action name="action_none">
+   <property name="text">
+    <string>None</string>
    </property>
   </action>
  </widget>

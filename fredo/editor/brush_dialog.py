@@ -46,4 +46,5 @@ class BrushDialog(QDialog):
     def select_brush(self):
         " Select the currentently configured brush params "
         self.selected_brush = self.current_brush
+        self.selected_brush.set_value(self.ui.value_box.value())
         self.close()

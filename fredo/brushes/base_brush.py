@@ -20,5 +20,5 @@ class BaseBrush:
         pass
 
     @abstractmethod
-    def get_size(self):
+    def set_value(self):
         pass

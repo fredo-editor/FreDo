@@ -18,6 +18,7 @@ class EditorMainWindow(QMainWindow):
 
         self.ui.action_open.triggered.connect(self.open_file)
         self.ui.action_brush.triggered.connect(self.show_brush)
+        self.ui.action_none.triggered.connect(self.remove_brush)
         self.ui.image_zoom_in_btn.clicked.connect(self.image_zoom_in)
         self.ui.image_zoom_out_btn.clicked.connect(self.image_zoom_out)
         self.ui.freq_zoom_in_btn.clicked.connect(self.freq_zoom_in)
@@ -31,7 +32,7 @@ class EditorMainWindow(QMainWindow):
         self.spatial_array = None
         # This will store the shifted frequency image
         self.frequency_array_magnitude = None
-        self.frequency_array_agnle = None
+        self.frequency_array_angle = None
 
         self.freq_pixmap = None
         self.scaled_freq_pixmap = None
@@ -283,14 +284,48 @@ class EditorMainWindow(QMainWindow):
             if event.type() == QtCore.QEvent.MouseMove:
                 self.handle_freq_move(event)
                 return True
+            elif event.type() == QtCore.QEvent.MouseButtonPress:
+                if event.button() == QtCore.Qt.MouseButton.LeftButton:
+                    self.handle_freq_click(event)
 
         return QObject.eventFilter(self, obj, event)
 
+    def handle_freq_click(self, event):
+        "Handle the click on the frequency image."
+
+        if not self.current_brush is None:
+
+            x, y = event.x(), event.y()
+            self.current_brush.apply(x, y, self.frequency_array_magnitude)
+
+            self.set_freq_image_magnitude(self.frequency_array_magnitude)
+            self.render_freq()
+            self.recompute_spatial_image()
+
     def show_brush(self):
+        "Show the brush dialog box."
         d = BrushDialog(self)
         d.exec_()
         if d.get_brush():
             self.current_brush = d.get_brush()
+
+    def remove_brush(self):
+        "Deselcts a brush."
+        self.current_brush = None
+        self.render_freq()
+
+    def recompute_spatial_image(self):
+        "Recompute the spatial image from the frequency image and render it."
+
+        r = np.fft.ifftshift(self.frequency_array_magnitude)
+        theta = np.fft.ifftshift(self.frequency_array_angle)
+        real = r*np.cos(theta)
+        imag = r*np.sin(theta)
+
+        fft_image = real + 1j*imag
+        image = np.fft.ifft2(fft_image)
+        image = np.real(image).astype(np.uint8)
+        self.set_gray_image(image)
 
 
 if __name__ == '__main__':
