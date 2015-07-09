@@ -18,13 +18,23 @@ class SquareBrush(BaseBrush):
         painter.setPen(Qt.green)
         painter.drawRect(x - w/2, y - h/2, w, h)
 
+        x = pixmap.width() - x
+        y = pixmap.height() - y
+        painter.drawRect(x - w/2, y - h/2, w, h)
+
     def apply(self, x, y, array):
         "Modify the array for the brush to take effect"
 
-        x = x - self.size/2
-        y = y - self.size/2
+        xa = x - self.size/2
+        ya = y - self.size/2
+        array[ya:ya+self.size, xa:xa+self.size] = self.value
 
-        array[y:y+self.size, x:x+self.size] = self.value
+        h, w = array.shape
+        x = w - x
+        y = h - y
+        xa = x - self.size/2
+        ya = y - self.size/2
+        array[ya:ya+self.size, xa:xa+self.size] = self.value
 
     def set_size(self, size):
         self.size = size

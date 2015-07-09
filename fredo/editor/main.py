@@ -296,6 +296,10 @@ class EditorMainWindow(QMainWindow):
         if not self.current_brush is None:
 
             x, y = event.x(), event.y()
+            x /= self.frequency_scale
+            y /= self.frequency_scale
+            h, w = self.frequency_array_magnitude.shape
+
             self.current_brush.apply(x, y, self.frequency_array_magnitude)
 
             self.set_freq_image_magnitude(self.frequency_array_magnitude)
@@ -324,7 +328,11 @@ class EditorMainWindow(QMainWindow):
 
         fft_image = real + 1j*imag
         image = np.fft.ifft2(fft_image)
-        image = np.real(image).astype(np.uint8)
+
+        image = np.real(image)
+        mx, mn = image.max(), image.min()
+        image = 255*(image - mn)/(mx - mn)
+        image = image.astype(np.uint8)
         self.set_gray_image(image)
 
 
