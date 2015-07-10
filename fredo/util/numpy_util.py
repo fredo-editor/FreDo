@@ -68,7 +68,7 @@ def fft_to_qimage(arr):
     Otherwise, there is just too much difference between the maxima and minima.
     """
 
-    magnitutde_log = np.log(arr)
+    magnitutde_log = np.log(1 + arr)  # To avoid computing log(0).
     mn = magnitutde_log.min()
     mx = magnitutde_log.max()
     norm_img = 255*(magnitutde_log - mn)/(mx - mn)
