@@ -17,6 +17,7 @@ class EditorMainWindow(QMainWindow):
         self.ui.setupUi(self)
 
         self.ui.action_open.triggered.connect(self.open_file)
+        self.ui.action_save_spatial.triggered.connect(self.save_spatial)
         self.ui.action_brush.triggered.connect(self.show_brush)
         self.ui.action_none.triggered.connect(self.remove_brush)
         self.ui.image_zoom_in_btn.clicked.connect(self.image_zoom_in)
@@ -47,9 +48,12 @@ class EditorMainWindow(QMainWindow):
     def open_file(self):
         """ Signal handler for the Open Menu """
 
-        file_name = QtGui.QFileDialog.getOpenFileName(self, "Open File")[0]
+        filters = "Image Files (*.png *.jpg *.bmp)"
+        file_name = QtGui.QFileDialog.getOpenFileName(self, "Open File",
+                                                      filter=filters)[0]
         if file_name:
             image = QtGui.QImage(file_name)
+            filters = "Image Files (*.png *.jpg *.bmp)"
 
             if image.isNull():
                 QtGui.QMessageBox.information(self, "Image Viewer",
@@ -337,6 +341,27 @@ class EditorMainWindow(QMainWindow):
         image = image.astype(np.uint8)
         self.spatial_image[:, :, 0] = image
         self.set_yuv_image(self.spatial_image)
+
+    def save_spatial(self):
+
+        if self.spatial_image is None:
+            QtGui.QMessageBox.information(self, "Error", "No Image to Save")
+            return
+
+        filters = "Image Files (*.png)"
+        filename = QtGui.QFileDialog.getSaveFileName(self, "Save Image",
+                                                     filter=filters)[0]
+
+        if not filename.lower().endswith('.png'):
+            filename += '.png'
+
+        arr = util.yuv_to_rgb(self.spatial_image)
+        image = util.numpy_to_qimage(arr)
+        success = image.save(filename)
+
+        if not success:
+            msg = "Could not save image at the location."
+            QtGui.QMessageBox.information(self, "Error", msg)
 
 
 if __name__ == '__main__':
