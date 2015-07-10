@@ -29,7 +29,7 @@ class EditorMainWindow(QMainWindow):
         self.ui.image_label.setMouseTracking(True)
         self.ui.freq_label.setMouseTracking(True)
 
-        self.spatial_array = None
+        self.spatial_image = None
         # This will store the shifted frequency image
         self.frequency_array_magnitude = None
         self.frequency_array_angle = None
@@ -57,11 +57,12 @@ class EditorMainWindow(QMainWindow):
                 return
 
             array = util.qimage_to_numpy(image)
-            garray = util.rgb_to_gray(array)
+            image = util.rgb_to_yuv(array)
+            garray = image[..., 0]
             farray = np.fft.fft2(garray)
             farray = np.fft.fftshift(farray)
 
-            self.set_gray_image(garray)
+            self.set_yuv_image(image)
             self.set_freq_image_angle(np.angle(farray))
             self.set_freq_image_magnitude(np.absolute(farray))
 
@@ -124,15 +125,15 @@ class EditorMainWindow(QMainWindow):
 
         self.frequency_array_angle = fimg
 
-    def set_gray_image(self, gimg):
-        """ Sets a 2D grayscale array as the spatial domain image.
+    def set_yuv_image(self, img):
+        """ Sets the spatial image as YUV array.
 
-        The function expects a `uint8` grayscale array and will set it as the
-        spatial domain image in the UI along with updating all internal fields.
+        The function expects a `uint8` array and will set the spatial domain
+        image in the UI along with updating all internal fields.
         """
 
-        self.spatial_array = gimg
-        img = util.gray_to_rgb(gimg)
+        self.spatial_image = img
+        img = util.yuv_to_rgb(self.spatial_image)
         qimage = util.numpy_to_qimage(img)
         pixmap = QPixmap.fromImage(qimage)
         self.set_image_pixmap(pixmap)
@@ -173,7 +174,7 @@ class EditorMainWindow(QMainWindow):
     def image_zoom_in(self):
         " Zoom in the spatial domain image "
 
-        if self.spatial_array is None:
+        if self.spatial_image is None:
             return
 
         self.spatial_scale += 0.1
@@ -183,7 +184,7 @@ class EditorMainWindow(QMainWindow):
     def image_zoom_out(self):
         " Zoom out the spatial domain image "
 
-        if self.spatial_array is None:
+        if self.spatial_image is None:
             return
 
         self.spatial_scale -= 0.1
@@ -213,7 +214,7 @@ class EditorMainWindow(QMainWindow):
     def handle_image_move(self, event):
         "Handle mouse move on the spatial image."
 
-        if self.spatial_array is None:
+        if self.spatial_image is None:
             return
 
         self.handle_image_stats(event)
@@ -229,11 +230,12 @@ class EditorMainWindow(QMainWindow):
         x, y = int(x/self.spatial_scale), int(y/self.spatial_scale)
         r, c = y, x
 
-        r = np.clip(r, 0, self.spatial_array.shape[0])
-        c = np.clip(c, 0, self.spatial_array.shape[1])
-        value = self.spatial_array[r, c]
+        r = np.clip(r, 0, self.spatial_image.shape[0])
+        c = np.clip(c, 0, self.spatial_image.shape[1])
+        value = self.spatial_image[r, c].astype(np.int)
 
-        msg = "X:%d Y:%d Value:%d" % (x, y, value)
+        msg = "X:%d Y:%d Value:" % (x, y)
+        msg += str(value)
         self.ui.image_info_label.setText(msg)
 
     def handle_freq_move(self, event):
@@ -333,7 +335,8 @@ class EditorMainWindow(QMainWindow):
         mx, mn = image.max(), image.min()
         image = 255*(image - mn)/(mx - mn)
         image = image.astype(np.uint8)
-        self.set_gray_image(image)
+        self.spatial_image[:, :, 0] = image
+        self.set_yuv_image(self.spatial_image)
 
 
 if __name__ == '__main__':

@@ -61,6 +61,38 @@ def gray_to_rgb(arr):
     return np.dstack([arr, arr, arr])
 
 
+def rgb_to_yuv(arr):
+    "Converts RGB array to YUV."
+
+    r = arr[:, :, 0].astype(np.float)
+    g = arr[:, :, 1].astype(np.float)
+    b = arr[:, :, 2].astype(np.float)
+
+    y = r*.299000 + g*.587000 + b*.114000
+    u = r*-.168736 + g*-.331264 + b*.500000 + 128
+    v = r*.500000 + g*-.418688 + b*-.081312 + 128
+
+    ret = np.dstack([y, u, v])
+    ret = np.clip(ret, 0, 255)
+    return ret.astype(np.uint8)
+
+
+def yuv_to_rgb(arr):
+    "Converts YUV array to RGB"
+
+    y = arr[:, :, 0].astype(np.float)
+    u = arr[:, :, 1].astype(np.float)
+    v = arr[:, :, 2].astype(np.float)
+
+    r = y + 1.4075 * (v - 128)
+    g = y - 0.3455 * (u - 128) - (0.7169 * (v - 128))
+    b = y + 1.7790 * (u - 128)
+
+    ret = np.dstack([r, g, b])
+    ret = np.clip(ret, 0, 255)
+    return ret.astype(np.uint8)
+
+
 def fft_to_qimage(arr):
     """Converts frquency spectrum magnitude image to displayable qimage.
 
