@@ -8,6 +8,4 @@ res_rc.py: res.qrc
 %.py: %.ui
 	$(UIC) -o $@ $^
 
-
-
 all: $(WIDGETS)
