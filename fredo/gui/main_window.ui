@@ -11,7 +11,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Fredo Editor</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="res.qrc">
+    <normaloff>:/logo/logo.png</normaloff>:/logo/logo.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
@@ -241,6 +245,8 @@
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="res.qrc"/>
+ </resources>
  <connections/>
 </ui>
