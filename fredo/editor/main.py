@@ -18,6 +18,7 @@ class EditorMainWindow(QMainWindow):
 
         self.ui.action_open.triggered.connect(self.open_file)
         self.ui.action_save_spatial.triggered.connect(self.save_spatial)
+        self.ui.action_save_both.triggered.connect(self.save_both)
         self.ui.action_brush.triggered.connect(self.show_brush)
         self.ui.action_none.triggered.connect(self.remove_brush)
         self.ui.image_zoom_in_btn.clicked.connect(self.image_zoom_in)
@@ -343,6 +344,7 @@ class EditorMainWindow(QMainWindow):
         self.set_yuv_image(self.spatial_image)
 
     def save_spatial(self):
+        "Save the spatial domain image."
 
         if self.spatial_image is None:
             QtGui.QMessageBox.information(self, "Error", "No Image to Save")
@@ -363,6 +365,38 @@ class EditorMainWindow(QMainWindow):
             msg = "Could not save image at the location."
             QtGui.QMessageBox.information(self, "Error", msg)
 
+    def save_both(self):
+        "Save image and its transofrm."
+
+        if self.spatial_image is None or \
+           self.frequency_array_magnitude is None:
+
+            QtGui.QMessageBox.information(self, "Error", "No Image to Save")
+            return
+
+        filters = "Image Files (*.png)"
+        filename = QtGui.QFileDialog.getSaveFileName(self, "Save Image",
+                                                     filter=filters)[0]
+
+        if not filename.lower().endswith('.png'):
+            filename += '.png'
+
+        arr = util.yuv_to_rgb(self.spatial_image)
+        r, c, ch = arr.shape
+
+        out = np.zeros((r, c*2, ch), dtype=arr.dtype)
+        out[:, :c, :] = arr
+
+        freq_img = util.fft_to_qimage(self.frequency_array_magnitude)
+        freq_arr = util.qimage_to_numpy(freq_img)
+        out[:, c:, :] = freq_arr
+
+        image = util.numpy_to_qimage(out)
+        success = image.save(filename)
+
+        if not success:
+            msg = "Could not save image at the location."
+            QtGui.QMessageBox.information(self, "Error", msg)
 
 if __name__ == '__main__':
 

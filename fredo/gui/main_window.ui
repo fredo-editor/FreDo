@@ -213,6 +213,7 @@
     </property>
     <addaction name="action_open"/>
     <addaction name="action_save_spatial"/>
+    <addaction name="action_save_both"/>
    </widget>
    <widget class="QMenu" name="menuBrushes">
     <property name="title">
@@ -242,6 +243,11 @@
   <action name="action_save_spatial">
    <property name="text">
     <string>Save Image</string>
+   </property>
+  </action>
+  <action name="action_save_both">
+   <property name="text">
+    <string>Save Image &amp;&amp; Transform</string>
    </property>
   </action>
  </widget>
