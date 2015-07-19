@@ -398,9 +398,12 @@ class EditorMainWindow(QMainWindow):
             msg = "Could not save image at the location."
             QtGui.QMessageBox.information(self, "Error", msg)
 
-if __name__ == '__main__':
+def run():
 
     app = QApplication(sys.argv)
     editor = EditorMainWindow()
     editor.show()
     sys.exit(app.exec_())
+
+if __name__ == '__main__':
+    run()
