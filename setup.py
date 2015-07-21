@@ -4,7 +4,7 @@ with open('requirements.txt') as f:
     INSTALL_REQUIRES = [l.strip() for l in f.xreadlines() if l]
 
 setup(name='FreDo-Editor',
-      version='0.1',
+      version='0.1.0',
       description='Frequency Domain Image Editor',
       author='Vighnesh Birodkar',
       packages=find_packages(),
