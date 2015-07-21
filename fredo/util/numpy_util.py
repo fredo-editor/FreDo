@@ -41,7 +41,9 @@ def numpy_to_qimage(array):
     string = array4.tostring()
 
     img = QImage(string, cols, rows, QImage.Format_ARGB32)
-    return img
+    # On windows, img `img` holds a reference to `string` and behaves wrongly
+    # when the string goes out of scope.
+    return img.copy()
 
 
 def rgb_to_gray(arr):
