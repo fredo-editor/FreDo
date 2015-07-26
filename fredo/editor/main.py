@@ -6,6 +6,7 @@ import sys
 import numpy as np
 from .. import util
 from .brush_dialog import BrushDialog
+from .about_dialog import AboutDialog
 
 
 class EditorMainWindow(QMainWindow):
@@ -20,6 +21,8 @@ class EditorMainWindow(QMainWindow):
         self.ui.action_save_spatial.triggered.connect(self.save_spatial)
         self.ui.action_save_both.triggered.connect(self.save_both)
         self.ui.action_brush.triggered.connect(self.show_brush)
+        self.ui.action_website.triggered.connect(self.show_website)
+        self.ui.action_about.triggered.connect(self.show_about)
         self.ui.action_none.triggered.connect(self.remove_brush)
         self.ui.image_zoom_in_btn.clicked.connect(self.image_zoom_in)
         self.ui.image_zoom_out_btn.clicked.connect(self.image_zoom_out)
@@ -397,6 +400,18 @@ class EditorMainWindow(QMainWindow):
         if not success:
             msg = "Could not save image at the location."
             QtGui.QMessageBox.information(self, "Error", msg)
+
+    def show_about(self):
+        "Display the about dialog."
+
+        d = AboutDialog(self)
+        d.exec_()
+
+    def show_website(self):
+        "Open the website in a browser."
+
+        QtGui.QDesktopServices.openUrl("http://fredo-editor.github.io")
+
 
 def run():
 

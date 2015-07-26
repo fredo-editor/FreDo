@@ -3,7 +3,7 @@
 
 ## Dependencies
 Fredo-Editor uses [PySide](https://wiki.qt.io/PySide) for its GUI and
-[Numpy](http://www.numpy.org/) for computation.
+[NumPy](http://www.numpy.org/) for computation.
 
 ## Build Instructions
 
