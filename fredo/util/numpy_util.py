@@ -12,7 +12,7 @@ def qimage_to_numpy(qimage):
     w, h = qimage.width(), qimage.height()
     string = qimage.bits()
 
-    arr = np.fromstring(string, dtype=np.uint8)
+    arr = np.fromstring(bytes(string), dtype=np.uint8)
     arr = arr.reshape(h, w, 4)
     arr = arr[..., 0:3]
 

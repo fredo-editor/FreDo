@@ -1,4 +1,4 @@
-from numpy_util import (qimage_to_numpy, numpy_to_qimage, rgb_to_gray,
+from .numpy_util import (qimage_to_numpy, numpy_to_qimage, rgb_to_gray,
                         gray_to_rgb, fft_to_qimage, rgb_to_yuv, yuv_to_rgb)
 
 
