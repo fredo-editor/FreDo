@@ -260,6 +260,8 @@ class EditorMainWindow(QMainWindow):
             pixmap = self.scaled_freq_pixmap.copy()
             self.current_brush.draw_marker(event.x(), event.y(), pixmap,
                                            self.frequency_scale)
+            if event.buttons() & QtCore.Qt.MouseButton.LeftButton:
+                self.handle_freq_modify(event)
             # We use the pre computed scaled pixmap and mark the brush on it
             # before displaying
             self.render_freq(pixmap)
@@ -291,17 +293,24 @@ class EditorMainWindow(QMainWindow):
                 return True
 
         elif obj == self.ui.freq_label:
+
             if event.type() == QtCore.QEvent.MouseMove:
                 self.handle_freq_move(event)
                 return True
+
             elif event.type() == QtCore.QEvent.MouseButtonPress:
                 if event.button() == QtCore.Qt.MouseButton.LeftButton:
-                    self.handle_freq_click(event)
+                    self.handle_freq_modify(event)
+
+            elif event.type() == QtCore.QEvent.MouseButtonRelease:
+                if event.button() == QtCore.Qt.MouseButton.LeftButton:
+                    if self.current_brush:
+                        self.recompute_spatial_image()
 
         return QObject.eventFilter(self, obj, event)
 
-    def handle_freq_click(self, event):
-        "Handle the click on the frequency image."
+    def handle_freq_modify(self, event):
+        "Handle an event which will modify the frequency image."
 
         if not self.current_brush is None:
 
@@ -314,7 +323,7 @@ class EditorMainWindow(QMainWindow):
 
             self.set_freq_image_magnitude(self.frequency_array_magnitude)
             self.render_freq()
-            self.recompute_spatial_image()
+            #self.recompute_spatial_image()
 
     def show_brush(self):
         "Show the brush dialog box."
