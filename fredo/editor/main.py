@@ -7,6 +7,7 @@ import numpy as np
 from .. import util
 from .brush_dialog import BrushDialog
 from .about_dialog import AboutDialog
+from .helper_threads import IFTThread
 
 
 class EditorMainWindow(QMainWindow):
@@ -277,8 +278,8 @@ class EditorMainWindow(QMainWindow):
         x, y = int(x/self.frequency_scale), int(y/self.frequency_scale)
         r, c = y, x
 
-        r = np.clip(r, 0, self.frequency_array_magnitude.shape[0])
-        c = np.clip(c, 0, self.frequency_array_magnitude.shape[1])
+        r = np.clip(r, 0, self.frequency_array_magnitude.shape[0] - 1)
+        c = np.clip(c, 0, self.frequency_array_magnitude.shape[1] - 1)
         value = self.frequency_array_magnitude[r, c]
 
         msg = "X:%d Y:%d Value:%d" % (x, y, value)
@@ -301,11 +302,13 @@ class EditorMainWindow(QMainWindow):
             elif event.type() == QtCore.QEvent.MouseButtonPress:
                 if event.button() == QtCore.Qt.MouseButton.LeftButton:
                     self.handle_freq_modify(event)
+                    return True
 
             elif event.type() == QtCore.QEvent.MouseButtonRelease:
                 if event.button() == QtCore.Qt.MouseButton.LeftButton:
                     if self.current_brush:
                         self.recompute_spatial_image()
+                        return True
 
         return QObject.eventFilter(self, obj, event)
 
@@ -323,7 +326,6 @@ class EditorMainWindow(QMainWindow):
 
             self.set_freq_image_magnitude(self.frequency_array_magnitude)
             self.render_freq()
-            #self.recompute_spatial_image()
 
     def show_brush(self):
         "Show the brush dialog box."
@@ -338,21 +340,21 @@ class EditorMainWindow(QMainWindow):
         self.render_freq()
 
     def recompute_spatial_image(self):
-        "Recompute the spatial image from the frequency image and render it."
+        """Recompute the spatial image from the frequency image and render it.
 
-        r = np.fft.ifftshift(self.frequency_array_magnitude)
-        theta = np.fft.ifftshift(self.frequency_array_angle)
-        real = r*np.cos(theta)
-        imag = r*np.sin(theta)
+        This function just launches a thread to do the task.
+        """
 
-        fft_image = real + 1j*imag
-        image = np.fft.ifft2(fft_image)
+        magnitude = self.frequency_array_magnitude
+        angle = self.frequency_array_angle
+        self.ift_thread = IFTThread(magnitude, angle)
+        self.ift_thread.ift_done.connect(self.ift_done_recv)
+        self.ift_thread.start()
 
-        image = np.real(image)
-        mx, mn = image.max(), image.min()
-        image = 255*(image - mn)/(mx - mn)
-        image = image.astype(np.uint8)
-        self.spatial_image[:, :, 0] = image
+    def ift_done_recv(self, array):
+        "The reciever for the ift_done signal"
+
+        self.spatial_image[:, :, 0] = array
         self.set_yuv_image(self.spatial_image)
 
     def save_spatial(self):
