@@ -1,3 +1,7 @@
+# Parts of this file were derived from the setup.py file of scikit-image
+# scikit-image liscnece can be found at
+# https://github.com/scikit-image/scikit-image/blob/master/LICENSE.txt
+
 from setuptools import setup, find_packages
 
 with open('requirements.txt') as f:
