@@ -322,7 +322,9 @@ class EditorMainWindow(QMainWindow):
             y /= self.frequency_scale
             h, w = self.frequency_array_magnitude.shape
 
-            self.current_brush.apply(x, y, self.frequency_array_magnitude)
+            magnitude = self.frequency_array_magnitude
+            angle = self.frequency_array_angle
+            self.current_brush.apply(x, y, magnitude, angle)
 
             self.set_freq_image_magnitude(self.frequency_array_magnitude)
             self.render_freq()

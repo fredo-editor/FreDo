@@ -20,5 +20,9 @@ class BaseBrush:
         pass
 
     @abstractmethod
-    def set_value(self):
+    def set_magnitude(self):
+        pass
+
+    @abstractmethod
+    def set_angle(self):
         pass

@@ -3,6 +3,7 @@ from ..gui.brush_dialog import Ui_BrushDialog
 from PySide.QtGui import QPixmap
 from PySide.QtCore import Qt
 from ..brushes import SquareBrush
+import math
 
 
 class BrushDialog(QDialog):
@@ -37,7 +38,7 @@ class BrushDialog(QDialog):
         "Handle the brush type change"
 
         if index == 0:
-            self.current_brush = SquareBrush(self.ui.size_slider.value())
+            self.current_brush = SquareBrush(size=self.ui.size_slider.value())
 
     def get_brush(self):
         " Get the selected brush or `None` if dialog was closed. "
@@ -46,5 +47,7 @@ class BrushDialog(QDialog):
     def select_brush(self):
         " Select the currentently configured brush params "
         self.selected_brush = self.current_brush
-        self.selected_brush.set_value(self.ui.value_box.value())
+        self.selected_brush.set_magnitude(self.ui.magnitude_box.value())
+        radians = self.ui.angle_slider.value()*2*math.pi/360.0
+        self.selected_brush.set_angle(radians)
         self.close()

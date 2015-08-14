@@ -59,12 +59,29 @@
       </widget>
      </item>
      <item>
-      <widget class="QSpinBox" name="value_box">
+      <widget class="QSpinBox" name="magnitude_box">
        <property name="minimum">
         <number>0</number>
        </property>
        <property name="maximum">
         <number>10000000</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Angle:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSlider" name="angle_slider">
+       <property name="maximum">
+        <number>360</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
        </property>
       </widget>
      </item>
