@@ -7,6 +7,7 @@ import numpy as np
 from .. import util
 from .brush_dialog import BrushDialog
 from .about_dialog import AboutDialog
+from .new_image_dialog import NewImageDialog
 from .helper_threads import IFTThread
 
 
@@ -20,6 +21,8 @@ class EditorMainWindow(QMainWindow):
 
         self.ui.action_open.triggered.connect(self.open_file)
         self.ui.action_save_spatial.triggered.connect(self.save_spatial)
+        self.ui.action_new_image.triggered.connect(self.new_image)
+        self.ui.action_linked_zoom.triggered.connect(self.link_zoom)
         self.ui.action_save_both.triggered.connect(self.save_both)
         self.ui.action_brush.triggered.connect(self.show_brush)
         self.ui.action_website.triggered.connect(self.show_website)
@@ -50,6 +53,8 @@ class EditorMainWindow(QMainWindow):
 
         self.current_brush = None
 
+        self.is_zoom_linked = False
+
     def open_file(self):
         """ Signal handler for the Open Menu """
 
@@ -66,14 +71,21 @@ class EditorMainWindow(QMainWindow):
                 return
 
             array = util.qimage_to_numpy(image)
-            image = util.rgb_to_yuv(array)
-            garray = image[..., 0]
-            farray = np.fft.fft2(garray)
-            farray = np.fft.fftshift(farray)
+            self.load_image_from_array(array)
 
-            self.set_yuv_image(image)
-            self.set_freq_image_angle(np.angle(farray))
-            self.set_freq_image_magnitude(np.absolute(farray))
+    def load_image_from_array(self, array):
+        """ Loads an array as spatial domain image.
+
+        This function recomputes the fft and updates both the UIs. """
+
+        image = util.rgb_to_yuv(array)
+        garray = image[..., 0]
+        farray = np.fft.fft2(garray)
+        farray = np.fft.fftshift(farray)
+
+        self.set_yuv_image(image)
+        self.set_freq_image_angle(np.angle(farray))
+        self.set_freq_image_magnitude(np.absolute(farray))
 
     def set_freq_image_magnitude(self, fimg):
         """ Sets a numpy array as a frequncy domain image magnitude.
@@ -190,6 +202,11 @@ class EditorMainWindow(QMainWindow):
         self.invalidate_image_scale()
         self.render_image()
 
+        if self.is_zoom_linked:
+            self.frequency_scale = self.spatial_scale
+            self.invalidate_freq_scale()
+            self.render_freq()
+
     def image_zoom_out(self):
         " Zoom out the spatial domain image "
 
@@ -199,6 +216,11 @@ class EditorMainWindow(QMainWindow):
         self.spatial_scale -= 0.1
         self.invalidate_image_scale()
         self.render_image()
+
+        if self.is_zoom_linked:
+            self.frequency_scale = self.spatial_scale
+            self.invalidate_freq_scale()
+            self.render_freq()
 
     def freq_zoom_out(self):
         "Zoom out the frequency domain image."
@@ -210,6 +232,11 @@ class EditorMainWindow(QMainWindow):
         self.invalidate_freq_scale()
         self.render_freq()
 
+        if self.is_zoom_linked:
+            self.spatial_scale = self.frequency_scale
+            self.invalidate_image_scale()
+            self.render_image()
+
     def freq_zoom_in(self):
         "Zoom out the frequency domain image."
 
@@ -219,6 +246,11 @@ class EditorMainWindow(QMainWindow):
         self.frequency_scale += 0.1
         self.invalidate_freq_scale()
         self.render_freq()
+
+        if self.is_zoom_linked:
+            self.spatial_scale = self.frequency_scale
+            self.invalidate_image_scale()
+            self.render_image()
 
     def handle_image_move(self, event):
         "Handle mouse move on the spatial image."
@@ -424,6 +456,33 @@ class EditorMainWindow(QMainWindow):
         "Open the website in a browser."
 
         QtGui.QDesktopServices.openUrl("http://fredo-editor.github.io")
+
+    def new_image(self):
+        "Shows a dialog to create a new blank image."
+
+        d = NewImageDialog()
+        d.exec_()
+
+        if d.get_size():
+            w, h = d.get_size()
+            array = np.zeros((h, w, 3), dtype=np.uint8)
+            self.load_image_from_array(array)
+
+    def link_zoom(self):
+        "Ensures that both images are at the same scale."
+
+        if self.ui.action_linked_zoom.isChecked():
+            self.is_zoom_linked = True
+
+            self.spatial_scale = 1.0
+            self.invalidate_image_scale()
+            self.render_image()
+
+            self.frequency_scale = 1.0
+            self.invalidate_freq_scale()
+            self.render_freq()
+        else:
+            self.is_zoom_linked = False
 
 
 def run():
