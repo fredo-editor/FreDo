@@ -363,7 +363,7 @@ class EditorMainWindow(QMainWindow):
 
     def show_brush(self):
         "Show the brush dialog box."
-        d = BrushDialog(self)
+        d = BrushDialog(self, self.current_brush)
         d.exec_()
         if d.get_brush():
             self.current_brush = d.get_brush()

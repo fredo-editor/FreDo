@@ -33,6 +33,9 @@
          <property name="maximum">
           <number>2048</number>
          </property>
+         <property name="value">
+          <number>512</number>
+         </property>
         </widget>
        </item>
       </layout>
@@ -53,6 +56,9 @@
          </property>
          <property name="maximum">
           <number>2048</number>
+         </property>
+         <property name="value">
+          <number>512</number>
          </property>
         </widget>
        </item>

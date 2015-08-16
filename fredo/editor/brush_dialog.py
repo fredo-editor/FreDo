@@ -8,7 +8,7 @@ import math
 
 class BrushDialog(QDialog):
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, brush=None):
 
         super(BrushDialog, self).__init__(parent)
         self.ui = Ui_BrushDialog()
@@ -20,8 +20,14 @@ class BrushDialog(QDialog):
 
         self.ui.brush_combo_box.setCurrentIndex(0)
         self.brush_changed(0)
+        self.selected_brush = brush
         self.ui.size_slider.setSliderPosition(10)
-        self.selected_brush = None
+
+        if brush:
+            self.ui.size_slider.setSliderPosition(brush.size)
+            degrees = brush.angle*180/(math.pi)
+            self.ui.angle_slider.setSliderPosition(degrees)
+            self.ui.magnitude_box.setValue(brush.magnitude)
 
     def size_changed(self, value):
         "Handle the slider drag event."
@@ -48,6 +54,6 @@ class BrushDialog(QDialog):
         " Select the currentently configured brush params "
         self.selected_brush = self.current_brush
         self.selected_brush.set_magnitude(self.ui.magnitude_box.value())
-        radians = self.ui.angle_slider.value()*2*math.pi/360.0
+        radians = self.ui.angle_slider.value()*math.pi/180.0
         self.selected_brush.set_angle(radians)
         self.close()
