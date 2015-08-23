@@ -326,6 +326,8 @@ class EditorMainWindow(QMainWindow):
                 return True
 
         elif obj == self.ui.freq_label:
+            if not self.ui.freq_label.isEnabled():
+                return False
 
             if event.type() == QtCore.QEvent.MouseMove:
                 self.handle_freq_move(event)
@@ -383,6 +385,9 @@ class EditorMainWindow(QMainWindow):
         angle = self.frequency_array_angle
         self.ift_thread = IFTThread(magnitude, angle)
         self.ift_thread.ift_done.connect(self.ift_done_recv)
+        # To prevent mutiple threads modifying images
+        # we disable is while one thread is working
+        self.ui.freq_label.setEnabled(False)
         self.ift_thread.start()
 
     def ift_done_recv(self, array):
@@ -390,6 +395,7 @@ class EditorMainWindow(QMainWindow):
 
         self.spatial_image[:, :, 0] = array
         self.set_yuv_image(self.spatial_image)
+        self.ui.freq_label.setEnabled(True)
 
     def save_spatial(self):
         "Save the spatial domain image."
